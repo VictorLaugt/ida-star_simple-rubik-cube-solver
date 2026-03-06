@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import random
+
 from cube_interface import AbstractCube
 
 
@@ -16,11 +18,6 @@ rot_iu = ...
 rot_il = ...
 rot_ir = ...
 
-possible_rotations = (
-    rot_b, rot_f, rot_d, rot_u, rot_l, rot_r,
-    rot_ib, rot_if, rot_id, rot_iu, rot_il, rot_ir
-)
-
 named_rotations = {
     'b': rot_b, 'f': rot_f, 'd': rot_d, 'u': rot_u, 'l': rot_l, 'r': rot_r,
     'ib': rot_ib, 'if': rot_if, 'id': rot_id, 'iu': rot_iu, 'il': rot_il, 'ir': rot_ir
@@ -33,22 +30,16 @@ class CubeEdgesAndCorners(AbstractCube[...]):
         ...
         return CubeEdgesAndCorners()
 
-    @classmethod
-    def new_shuffled(cls, n_shuffles: int=1024) -> CubeEdgesAndCorners:
-        ...
-        return CubeEdgesAndCorners()
-
-    def __eq__(self, other: CubeEdgesAndCorners) -> bool:
-        ...
-        return False
-
     def copy(self) -> CubeEdgesAndCorners:
         ...
         return CubeEdgesAndCorners()
 
-    def shuffle(self, n_shuffle: int=1024) -> list[...]:
+    def get_possible_rotations(self) -> dict[str, ...]:
+        return named_rotations
+
+    def __eq__(self, other: CubeEdgesAndCorners) -> bool:
         ...
-        return []
+        return False
 
     def apply_rotation(self, rotation: ...) -> None:
         ...

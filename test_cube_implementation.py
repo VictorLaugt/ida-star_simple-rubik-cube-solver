@@ -4,13 +4,14 @@ import unittest
 from itertools import product
 import random
 
-import cube_54stickers
-import cube_12edges_8corners
+from cube_54stickers import CubeStickers
+from cube_12edges_8corners import CubeEdgesAndCorners
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Type
-    from cube_interface import AbstractCube, Rotation
+    from typing import Type, TypeVar
+    from cube_interface import AbstractCube
+    R = TypeVar('R')
 
 
 def opposite_rotation_name(rot_name: str) -> str:
@@ -20,10 +21,7 @@ def opposite_rotation_name(rot_name: str) -> str:
         return f'i{rot_name}'
 
 
-def factory_test_rotation_cycle(
-    CubeImpl: Type[AbstractCube[Rotation]],
-    rot: Rotation
-):
+def factory_test_rotation_cycle(CubeImpl: Type[AbstractCube[R]], rot: R):
     def test_rotation_cycle(self):
         cube = CubeImpl.new_shuffled()
         cube_copy = cube.copy()
@@ -33,11 +31,7 @@ def factory_test_rotation_cycle(
     return test_rotation_cycle
 
 
-def factory_test_opposite_rotations(
-    CubeImpl: Type[AbstractCube[Rotation]],
-    rot: Rotation,
-    opp: Rotation
-):
+def factory_test_opposite_rotations(CubeImpl: Type[AbstractCube[R]], rot: R, opp: R):
     def test_opposite_rotations(self):
         cube = CubeImpl.new_shuffled()
         cube_copy = cube.copy()
@@ -47,11 +41,7 @@ def factory_test_opposite_rotations(
     return test_opposite_rotations
 
 
-def factory_test_undo_rotation(
-    CubeImpl: Type[AbstractCube[Rotation]],
-    rot: Rotation,
-    opp: Rotation
-):
+def factory_test_undo_rotation(CubeImpl: Type[AbstractCube[R]], rot: R, opp: R):
     def test_undo_rotation(self):
         cube = CubeImpl.new_shuffled()
         cube_copy = cube.copy()
@@ -62,8 +52,8 @@ def factory_test_undo_rotation(
 
 
 def factory_test_sequence_identity(
-    CubeImpl: Type[AbstractCube[Rotation]],
-    named_rotations: dict[str, Rotation],
+    CubeImpl: Type[AbstractCube[R]],
+    named_rotations: dict[str, R],
     rot_name1: str,
     rot_name2: str
 ):
@@ -86,11 +76,9 @@ def factory_test_sequence_identity(
     return test_sequence_identity, pattern_name
 
 
-def factory_TestCubeImpl(
-    CubeImpl: Type[AbstractCube[Rotation]],
-    named_rotations: dict[str, Rotation]
-) -> Type[unittest.TestCase]:
+def factory_TestCubeImpl(CubeImpl: Type[AbstractCube[R]]) -> Type[unittest.TestCase]:
 
+    named_rotations = CubeImpl.new_solved().get_possible_rotations()
     rotation_names = list(named_rotations.keys())
     random_rot_name = (lambda: random.choice(rotation_names))
 
@@ -138,13 +126,8 @@ def factory_TestCubeImpl(
     return TestCubeImpl
 
 
-TestCubeStickers = factory_TestCubeImpl(
-    cube_54stickers.CubeStickers, cube_54stickers.named_rotations
-)
-
-TestCubeEdgesAndCorners = factory_TestCubeImpl(
-    cube_12edges_8corners.CubeEdgesAndCorners, cube_12edges_8corners.named_rotations
-)
+TestCubeStickers = factory_TestCubeImpl(CubeStickers)
+TestCubeEdgesAndCorners = factory_TestCubeImpl(CubeEdgesAndCorners)
 
 
 if __name__ == '__main__':

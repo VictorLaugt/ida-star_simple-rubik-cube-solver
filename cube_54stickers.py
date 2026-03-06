@@ -7,6 +7,10 @@ import random
 
 from cube_interface import AbstractCube
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Optional, Sequence
+
 
 rot_b = np.array([
     [36, 38, 44, 42,  39, 37, 41, 43,  29, 0, 15, 53,  32, 1, 12, 52,  35, 2, 9, 51],
@@ -45,11 +49,6 @@ rot_iu = rot_u[[1, 0]]
 rot_il = rot_l[[1, 0]]
 rot_ir = rot_r[[1, 0]]
 
-possible_rotations = (
-    rot_b, rot_f, rot_d, rot_u, rot_l, rot_r,
-    rot_ib, rot_if, rot_id, rot_iu, rot_il, rot_ir
-)
-
 named_rotations = {
     'b': rot_b, 'f': rot_f, 'd': rot_d, 'u': rot_u, 'l': rot_l, 'r': rot_r,
     'ib': rot_ib, 'if': rot_if, 'id': rot_id, 'iu': rot_iu, 'il': rot_il, 'ir': rot_ir
@@ -76,7 +75,7 @@ class CubeStickers(AbstractCube[np.ndarray]):
         plan[3:6, 6:9] = self.stickers[27:36].reshape(3, 3)   # R
         plan[3:6, 9:12] = self.stickers[36:45].reshape(3, 3)  # B
         plan[6:9, 3:6] = self.stickers[45:54].reshape(3, 3)   # D
-        return plan        
+        return plan
 
     def __str__(self) -> str:
         str_builder = []
@@ -87,28 +86,21 @@ class CubeStickers(AbstractCube[np.ndarray]):
 
 
     @classmethod
-    def new_solved(cls) -> CubeStickers:
-        return cls(cls.solved_stickers.copy())
-
-    @classmethod
-    def new_shuffled(cls, n_shuffle: int=1024) -> CubeStickers:
+    def new_solved(cls, rotation_seq: Optional[Sequence[str]]=None) -> CubeStickers:
         cube = cls(cls.solved_stickers.copy())
-        cube.shuffle(n_shuffle)
+        if rotation_seq is not None:
+            for rot_name in rotation_seq:
+                cube.apply_rotation(named_rotations[rot_name])
         return cube
-
-    def __eq__(self, other: CubeStickers) -> bool:
-        return np.all(self.stickers == other.stickers)
 
     def copy(self) -> CubeStickers:
         return CubeStickers(self.stickers.copy())
 
-    def shuffle(self, n_shuffle: int=1024) -> list[np.ndarray]:
-        random_rot_sequence = []
-        for _ in range(n_shuffle):
-            random_rot = random.choice(possible_rotations)
-            random_rot_sequence.append(random_rot)
-            self.apply_rotation(random_rot)
-        return random_rot_sequence
+    def get_possible_rotations(self) -> dict[str, np.ndarray]:
+        return named_rotations
+
+    def __eq__(self, other: CubeStickers) -> bool:
+        return np.all(self.stickers == other.stickers)
 
     def apply_rotation(self, rotation: np.ndarray) -> None:
         src_idx, dst_idx = rotation[0, :], rotation[1, :]
