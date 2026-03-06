@@ -3,7 +3,6 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import numpy as np
-import random
 
 from cube_interface import AbstractCube
 
