@@ -126,18 +126,25 @@ if __name__ == '__main__':
     import numpy as np
     import matplotlib.pyplot as plt
 
-    goal = Cube.new_solved()
-    def h(node):
-        return np.count_nonzero(node.stickers != goal.stickers) / 20
+    from cube_54stickers import (
+        CubeStickers as Cube,
+        sticker_heuristic as h
+    )
+    # from cube_12edges_8corners import (
+    #     CubeEdgesAndCorners as Cube,
+    #     cubie_heuristic as h
+    # )
+
 
     # h = lambda node: 0
 
     cube = Cube.new_solved()
 
-    rot_name_seq, rot_seq = cube.shuffle(7)
+    # rot_name_seq, rot_seq = cube.shuffle(7)
     # rot_name_seq = 'b b il if ir d il'.split()
     # rot_name_seq = 'l id r f l b b'.split()
     # rot_name_seq = 'id u if f l l ib'.split()
+    rot_name_seq = 'il if b d ir if d'.split()
     possible_rotations = cube.get_possible_rotations()
     rot_seq = [possible_rotations[rot_name] for rot_name in rot_name_seq]
     for rot in rot_seq:

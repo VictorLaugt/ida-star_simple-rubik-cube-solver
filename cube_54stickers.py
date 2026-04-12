@@ -66,34 +66,12 @@ class CubeStickers(AbstractCube[np.ndarray]):
     def __init__(self, stickers: np.ndarray) -> None:
         self.stickers = stickers
 
-    def _color_array_2d(self) -> np.ndarray:
-        plan = np.full((9, 12), -1, dtype=np.int8)
-        plan[0:3, 3:6] = self.stickers[0:9].reshape(3, 3)     # U
-        plan[3:6, 0:3] = self.stickers[9:18].reshape(3, 3)    # L
-        plan[3:6, 3:6] = self.stickers[18:27].reshape(3, 3)   # F
-        plan[3:6, 6:9] = self.stickers[27:36].reshape(3, 3)   # R
-        plan[3:6, 9:12] = self.stickers[36:45].reshape(3, 3)  # B
-        plan[6:9, 3:6] = self.stickers[45:54].reshape(3, 3)   # D
-        return plan
-
-    def __str__(self) -> str:
-        str_builder = []
-        for row in self._color_array_2d():
-            colors = ''.join((f' {color} ' if color > -1 else '   ') for color in row)
-            str_builder.append(colors)
-        return '\n'.join(str_builder) + '\n'
-
-
     @classmethod
-    def new_solved(cls, rotation_seq: Optional[Sequence[str]]=None) -> CubeStickers:
-        cube = cls(cls.solved_stickers.copy())
-        if rotation_seq is not None:
-            for rot_name in rotation_seq:
-                cube.apply_rotation(named_rotations[rot_name])
-        return cube
+    def new_solved(cls) -> CubeStickers:
+        return cls(cls.solved_stickers.copy())
 
     def copy(self) -> CubeStickers:
-        return CubeStickers(self.stickers.copy())
+        return type(self)(self.stickers.copy())
 
     def get_possible_rotations(self) -> dict[str, np.ndarray]:
         return named_rotations
@@ -112,6 +90,23 @@ class CubeStickers(AbstractCube[np.ndarray]):
     def is_solved(self) -> bool:
         return np.all(self.stickers == self.solved_stickers)
 
+    def _color_array_2d(self) -> np.ndarray:
+        plan = np.full((9, 12), -1, dtype=np.int8)
+        plan[0:3, 3:6] = self.stickers[0:9].reshape(3, 3)     # U
+        plan[3:6, 0:3] = self.stickers[9:18].reshape(3, 3)    # L
+        plan[3:6, 3:6] = self.stickers[18:27].reshape(3, 3)   # F
+        plan[3:6, 6:9] = self.stickers[27:36].reshape(3, 3)   # R
+        plan[3:6, 9:12] = self.stickers[36:45].reshape(3, 3)  # B
+        plan[6:9, 3:6] = self.stickers[45:54].reshape(3, 3)   # D
+        return plan
+
+    def __str__(self) -> str:
+        str_builder = []
+        for row in self._color_array_2d():
+            colors = ''.join((f' {color} ' if color > -1 else '   ') for color in row)
+            str_builder.append(colors)
+        return '\n'.join(str_builder) + '\n'
+
     def plot(self, ax=None):
         if ax is None:
             _, ax = plt.subplots()
@@ -122,6 +117,10 @@ class CubeStickers(AbstractCube[np.ndarray]):
         )
         ax.axis('off')
         return ax, im
+
+
+def sticker_heuristic(cube: CubeStickers) -> int:
+    return np.ceil(np.count_nonzero(cube.stickers != cube.solved_stickers) / 20)
 
 
 if __name__ == '__main__':
